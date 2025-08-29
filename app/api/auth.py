@@ -2,7 +2,7 @@
 Authentication API endpoints
 """
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
@@ -332,90 +332,3 @@ async def create_user_by_admin(
         user=user_response,
         temporary_password=temp_password
     )
-
-
-@router.get("/admin/users")
-async def list_users(
-    skip: int = 0,
-    limit: int = 100,
-    user_type: Optional[str] = None,
-    is_active: Optional[bool] = None,
-    current_user: User = Depends(get_admin_user),
-    session: Session = Depends(get_session)
-):
-    """
-    List all users (Admin only)
-    
-    Args:
-        skip: Number of records to skip
-        limit: Maximum number of records to return
-        user_type: Filter by user type
-        is_active: Filter by active status
-        current_user: Current authenticated admin
-        session: Database session
-        
-    Returns:
-        List of users with basic information
-    """
-    
-    # Build query
-    query = select(User)
-    
-    # Apply filters
-    if user_type:
-        try:
-            user_type_enum = UserType(user_type)
-            query = query.where(User.user_type == user_type_enum)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Invalid user_type: {user_type}"
-            )
-    
-    if is_active is not None:
-        query = query.where(User.is_active == is_active)
-    
-    # Apply pagination
-    query = query.offset(skip).limit(limit)
-    
-    # Execute query
-    users = session.exec(query).all()
-    
-    # Format response
-    user_list = []
-    for user in users:
-        user_data = {
-            "id": str(user.id),
-            "phone": user.phone,
-            "username": user.username,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-            "full_name": user.full_name,
-            "email": user.email,
-            "user_type": user.user_type.value,
-            "is_active": user.is_active,
-            "profile_completed": user.profile_completed,
-            "created_at": user.created_at.isoformat() if user.created_at else None
-        }
-        user_list.append(user_data)
-    
-    # Get total count for pagination
-    count_query = select(User)
-    if user_type:
-        try:
-            user_type_enum = UserType(user_type)
-            count_query = count_query.where(User.user_type == user_type_enum)
-        except ValueError:
-            pass
-    if is_active is not None:
-        count_query = count_query.where(User.is_active == is_active)
-    
-    total_users = len(session.exec(count_query).all())
-    
-    return {
-        "users": user_list,
-        "total": total_users,
-        "skip": skip,
-        "limit": limit,
-        "count": len(user_list)
-    }
