@@ -2,7 +2,7 @@
 Subscription and billing models for vendor subscription management.
 """
 
-from typing import Optional, List
+from typing import Optional, List, Annotated
 from sqlmodel import SQLModel, Field, Relationship, Column, JSON
 from datetime import datetime, timedelta
 from enum import Enum
@@ -74,9 +74,9 @@ class SubscriptionPlan(SQLModel, table=True):
     plan_type: SubscriptionPlanType = Field(description="Type of subscription plan")
     
     # Pricing
-    base_price: Decimal = Field(decimal_places=2, description="Base price for the plan")
+    base_price: Decimal = Field(description="Base price for the plan")
     billing_cycle: BillingCycle = Field(description="Billing cycle")
-    setup_fee: Optional[Decimal] = Field(default=None, decimal_places=2, description="One-time setup fee")
+    setup_fee: Optional[Decimal] = Field(default=None, description="One-time setup fee")
     
     # Plan features
     features: dict = Field(default_factory=dict, sa_column=Column(JSON), description="Plan features and limits")
@@ -131,7 +131,7 @@ class Subscription(SQLModel, table=True):
     next_billing_date: Optional[datetime] = Field(default=None, description="Next billing date")
     
     # Pricing
-    amount: Decimal = Field(decimal_places=2, description="Subscription amount per billing cycle")
+    amount: Decimal = Field(description="Subscription amount per billing cycle")
     currency: str = Field(default="INR", max_length=3, description="Currency code")
     
     # Subscription metadata
@@ -199,7 +199,7 @@ class Payment(SQLModel, table=True):
     vendor_id: int = Field(foreign_key="vendors.id", description="Vendor making payment")
     
     # Payment details
-    amount: Decimal = Field(decimal_places=2, description="Payment amount")
+    amount: Decimal = Field(description="Payment amount")
     currency: str = Field(default="INR", max_length=3, description="Currency code")
     status: PaymentStatus = Field(default=PaymentStatus.PENDING, description="Payment status")
     
@@ -300,10 +300,10 @@ class Invoice(SQLModel, table=True):
     vendor_id: int = Field(foreign_key="vendors.id", description="Vendor for this invoice")
     
     # Invoice details
-    subtotal: Decimal = Field(decimal_places=2, description="Subtotal amount")
-    tax_amount: Decimal = Field(default=0, decimal_places=2, description="Tax amount")
-    discount_amount: Decimal = Field(default=0, decimal_places=2, description="Discount amount")
-    total_amount: Decimal = Field(decimal_places=2, description="Total amount")
+    subtotal: Decimal = Field(description="Subtotal amount")
+    tax_amount: Decimal = Field(default=0, description="Tax amount")
+    discount_amount: Decimal = Field(default=0, description="Discount amount")
+    total_amount: Decimal = Field(description="Total amount")
     
     # Invoice dates
     invoice_date: datetime = Field(description="Invoice date")

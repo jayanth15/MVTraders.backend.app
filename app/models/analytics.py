@@ -220,8 +220,8 @@ class BusinessMetric(SQLModel, table=True):
     category: str = Field(max_length=100, description="Metric category")
     
     # Metric value
-    value: Decimal = Field(decimal_places=4, description="Metric value")
-    previous_value: Optional[Decimal] = Field(default=None, decimal_places=4, description="Previous period value")
+    value: Decimal = Field(description="Metric value")
+    previous_value: Optional[Decimal] = Field(default=None, description="Previous period value")
     
     # Time period
     period_start: datetime = Field(description="Metric period start")
@@ -233,9 +233,9 @@ class BusinessMetric(SQLModel, table=True):
     dimensions: Dict[str, Any] = Field(default_factory=dict, sa_column=Column(JSON), description="Metric dimensions")
     
     # Calculations
-    growth_rate: Optional[Decimal] = Field(default=None, decimal_places=4, description="Growth rate vs previous period")
-    target_value: Optional[Decimal] = Field(default=None, decimal_places=4, description="Target value for metric")
-    variance: Optional[Decimal] = Field(default=None, decimal_places=4, description="Variance from target")
+    growth_rate: Optional[Decimal] = Field(default=None, description="Growth rate vs previous period")
+    target_value: Optional[Decimal] = Field(default=None, description="Target value for metric")
+    variance: Optional[Decimal] = Field(default=None, description="Variance from target")
     
     def calculate_growth_rate(self) -> Optional[Decimal]:
         """Calculate growth rate vs previous value"""
@@ -366,7 +366,7 @@ class AlertRule(SQLModel, table=True):
     # Alert conditions
     metric_name: str = Field(max_length=200, description="Metric to monitor")
     condition_operator: str = Field(max_length=20, description="Condition operator (>, <, =, etc.)")
-    threshold_value: Decimal = Field(decimal_places=4, description="Threshold value")
+    threshold_value: Decimal = Field(description="Threshold value")
     
     # Alert settings
     is_active: bool = Field(default=True, description="Whether alert is active")
