@@ -1,0 +1,3 @@
+"""
+MvTraders FastAPI Application
+"""
